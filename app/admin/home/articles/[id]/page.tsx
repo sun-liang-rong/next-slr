@@ -4,6 +4,8 @@ import { useState, useEffect } from "react"
 import { useEditor, EditorContent } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import { Placeholder } from "@tiptap/extension-placeholder"
+// 使用类型断言解决html-to-markdown的类型问题
+const htmlToMarkdown = require('html-to-markdown');
 import Link from "next/link"
 import { 
   Save,
@@ -128,11 +130,12 @@ const { id } = params
 
   // 在编辑模式下加载文章数据
   useEffect(() => {
-    if (isEditing && articleId) {
+    // 只有当id存在且不是'new'时才加载文章
+    if (id && id !== 'new') {
       const fetchArticle = async () => {
         try {
           setLoading(true)
-          const response = await fetch(`/api/articles/${articleId}`)
+          const response = await fetch(`/api/articles/${id}`)
           if (!response.ok) {
             throw new Error('获取文章失败')
           }
@@ -160,7 +163,7 @@ const { id } = params
       }
       fetchArticle()
     }
-  }, [isEditing, articleId])
+  }, [id])
 
   // 当编辑器初始化完成后，设置文章内容
   useEffect(() => {
@@ -182,12 +185,15 @@ const { id } = params
     }
 
     try {
+      // 将HTML转换为Markdown格式
+      const markdownContent = htmlToMarkdown.convert(editor.getHTML());
+      
       if (isEditing && articleId) {
         // 编辑模式下更新文章
         const articleData = {
           title,
           status: "草稿", // 强制设置为草稿状态
-          content: editor.getHTML(), // 保存编辑器内容
+          content: markdownContent, // 保存Markdown格式内容
           tagNames: tags, // 保存标签
         }
 
@@ -203,7 +209,7 @@ const { id } = params
         const articleData = {
           title,
           status: "草稿", // 强制设置为草稿状态
-          content: editor.getHTML(), // 保存编辑器内容
+          content: markdownContent, // 保存Markdown格式内容
           tagNames: tags, // 保存标签
         }
 
@@ -243,12 +249,15 @@ const { id } = params
     }
 
     try {
+      // 将HTML转换为Markdown格式
+      const markdownContent = htmlToMarkdown.convert(editor.getHTML());
+      
       if (isEditing && articleId) {
         // 编辑模式下更新文章
         const articleData = {
           title,
           status,
-          content: editor.getHTML(), // 保存编辑器内容
+          content: markdownContent, // 保存Markdown格式内容
           tagNames: tags, // 保存标签
         }
 
@@ -264,7 +273,7 @@ const { id } = params
         const articleData = {
           title,
           status,
-          content: editor.getHTML(), // 保存编辑器内容
+          content: markdownContent, // 保存Markdown格式内容
           tagNames: tags, // 保存标签
         }
 
