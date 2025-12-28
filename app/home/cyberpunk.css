@@ -1,0 +1,157 @@
+/* 赛博朋克风格字体 */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* 自定义CSS变量 */
+:root {
+  /* 赛博朋克配色 */
+  --cyber-dark-bg: #0a0a0f;
+  --cyber-dark-purple: #1a1a2e;
+  --cyber-white: #ffffff;
+  --cyber-gray: #a0aec0;
+  
+  /* 霓虹色 */
+  --cyber-neon-purple: #9d4edd;
+  --cyber-neon-blue: #4361ee;
+  --cyber-neon-pink: #f72585;
+  --cyber-neon-cyan: #4cc9f0;
+  --cyber-neon-green: #4895ef;
+  --cyber-neon-red: #f72585;
+  
+  /* 边框颜色 */
+  --cyber-border-purple: rgba(157, 78, 221, 0.3);
+}
+
+/* 前端博客页面样式 */
+body.cyberpunk-bg {
+  background-color: var(--cyber-dark-bg);
+  background-image: 
+    linear-gradient(rgba(157, 78, 221, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(157, 78, 221, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-attachment: fixed;
+  color: var(--cyber-white);
+  font-family: 'Inter', sans-serif;
+}
+
+/* 标题样式 */
+body.cyberpunk-bg h1, 
+body.cyberpunk-bg h2, 
+body.cyberpunk-bg h3, 
+body.cyberpunk-bg h4, 
+body.cyberpunk-bg h5, 
+body.cyberpunk-bg h6 {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+/* 霓虹文本效果 */
+body.cyberpunk-bg .neon-text {
+  text-shadow: 0 0 5px var(--cyber-neon-purple), 0 0 10px var(--cyber-neon-purple), 0 0 20px var(--cyber-neon-purple);
+}
+
+body.cyberpunk-bg .neon-text-blue {
+  text-shadow: 0 0 5px var(--cyber-neon-blue), 0 0 10px var(--cyber-neon-blue), 0 0 20px var(--cyber-neon-blue);
+}
+
+body.cyberpunk-bg .neon-text-pink {
+  text-shadow: 0 0 5px var(--cyber-neon-pink), 0 0 10px var(--cyber-neon-pink), 0 0 20px var(--cyber-neon-pink);
+}
+
+/* 霓虹边框效果 */
+body.cyberpunk-bg .neon-border {
+  box-shadow: 0 0 15px rgba(157, 78, 221, 0.5);
+}
+
+body.cyberpunk-bg .neon-border-blue {
+  box-shadow: 0 0 15px rgba(67, 97, 238, 0.5);
+}
+
+/* 玻璃拟态效果 */
+body.cyberpunk-bg .glass-morphism {
+  background: rgba(26, 26, 46, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--cyber-border-purple);
+}
+
+/* 渐变文本 */
+body.cyberpunk-bg .gradient-text {
+  background: linear-gradient(90deg, var(--cyber-neon-purple), var(--cyber-neon-blue), var(--cyber-neon-pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 按钮悬停效果 */
+body.cyberpunk-bg .btn-hover {
+  transition: all 0.3s ease;
+}
+
+body.cyberpunk-bg .btn-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 15px rgba(157, 78, 221, 0.5);
+}
+
+/* 卡片悬停效果 */
+body.cyberpunk-bg .card-hover {
+  transition: all 0.3s ease;
+}
+
+body.cyberpunk-bg .card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 20px rgba(157, 78, 221, 0.6);
+}
+
+/* 链接样式 */
+body.cyberpunk-bg a {
+  color: var(--cyber-neon-purple);
+  transition: color 0.3s ease;
+}
+
+body.cyberpunk-bg a:hover {
+  color: var(--cyber-neon-blue);
+}
+
+/* 代码块样式 */
+body.cyberpunk-bg pre {
+  background: rgba(26, 26, 46, 0.8);
+  border: 1px solid var(--cyber-border-purple);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+body.cyberpunk-bg code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875rem;
+}
+
+/* 自定义颜色类 */
+body.cyberpunk-bg .text-neon-purple { color: var(--cyber-neon-purple); }
+body.cyberpunk-bg .text-neon-blue { color: var(--cyber-neon-blue); }
+body.cyberpunk-bg .text-neon-pink { color: var(--cyber-neon-pink); }
+body.cyberpunk-bg .text-neon-cyan { color: var(--cyber-neon-cyan); }
+body.cyberpunk-bg .text-neon-green { color: var(--cyber-neon-green); }
+body.cyberpunk-bg .text-neon-red { color: var(--cyber-neon-red); }
+
+body.cyberpunk-bg .bg-dark-bg { background-color: var(--cyber-dark-bg); }
+body.cyberpunk-bg .bg-dark-purple { background-color: var(--cyber-dark-purple); }
+
+body.cyberpunk-bg .border-border-purple { border-color: var(--cyber-border-purple); }
+
+/* 赛博朋克风格的Loading动画 */
+body.cyberpunk-bg .cyber-loading {
+  border: 2px solid rgba(157, 78, 221, 0.3);
+  border-top: 2px solid var(--cyber-neon-purple);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
