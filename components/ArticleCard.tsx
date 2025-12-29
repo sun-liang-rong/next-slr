@@ -27,7 +27,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
               key={tag.id} 
               className="inline-block bg-dark-purple/80 text-neon-cyan text-xs px-3 py-1 rounded-full border border-border-purple hover:border-neon-cyan/70 hover:text-neon-cyan transition-all duration-300"
             >
-              #{tag.name}
+              {tag.name}
             </span>
           ))}
         </div>
@@ -38,9 +38,9 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
         </h2>
         
         {/* 文章简介 */}
-        <p className="text-gray mb-4 line-clamp-3 relative z-10 font-light leading-relaxed">
+        {/* <p className="text-gray mb-4 line-clamp-3 relative z-10 font-light leading-relaxed">
           {getExcerpt(article.content)}
-        </p>
+        </p> */}
         
         {/* 发布信息 */}
         <div className="flex justify-between items-center pt-4 border-t border-border-purple relative z-10">

@@ -126,17 +126,51 @@
   /* 赛博朋克基础样式 */
   body.cyberpunk-bg {
     background: 
-      radial-gradient(circle at 20% 50%, rgba(157, 78, 221, 0.15) 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, rgba(67, 97, 238, 0.15) 0%, transparent 50%),
-      radial-gradient(circle at 40% 80%, rgba(247, 37, 133, 0.15) 0%, transparent 50%),
-      linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%),
-      repeating-linear-gradient(0deg, rgba(157, 78, 221, 0.05) 0px, rgba(157, 78, 221, 0.05) 1px, transparent 1px, transparent 20px),
-      repeating-linear-gradient(90deg, rgba(157, 78, 221, 0.05) 0px, rgba(157, 78, 221, 0.05) 1px, transparent 1px, transparent 20px);
+      radial-gradient(circle at 15% 25%, rgba(157, 78, 221, 0.1) 0%, transparent 20%),
+      radial-gradient(circle at 85% 75%, rgba(67, 97, 238, 0.1) 0%, transparent 20%),
+      radial-gradient(circle at 70% 10%, rgba(247, 37, 133, 0.1) 0%, transparent 20%),
+      linear-gradient(135deg, #050508 0%, #0a0a0f 50%, #0f0f23 100%),
+      repeating-linear-gradient(0deg, rgba(157, 78, 221, 0.03) 0px, rgba(157, 78, 221, 0.03) 1px, transparent 1px, transparent 10px),
+      repeating-linear-gradient(90deg, rgba(157, 78, 221, 0.03) 0px, rgba(157, 78, 221, 0.03) 1px, transparent 1px, transparent 10px);
     background-attachment: fixed;
-    background-size: cover, cover, cover, cover, 20px 20px, 20px 20px;
+    background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 10px 10px, 10px 10px;
     color: #ffffff;
     font-family: 'Inter', sans-serif;
     overflow-x: hidden;
+    position: relative;
+  }
+  
+  /* 赛博朋克网格背景 */
+  body.cyberpunk-bg::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      linear-gradient(rgba(157, 78, 221, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(157, 78, 221, 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* 赛博朋克扫描线效果 */
+  body.cyberpunk-bg::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 10px;
+    background: linear-gradient(to bottom, 
+      rgba(76, 201, 240, 0.1) 0%, 
+      rgba(76, 201, 240, 0.3) 50%, 
+      rgba(76, 201, 240, 0.1) 100%);
+    animation: scanline 8s linear infinite;
+    pointer-events: none;
+    z-index: -1;
   }
   
   /* 赛博朋克标题样式 */
@@ -160,7 +194,34 @@
       0 0 20px #9d4edd,
       0 0 40px #9d4edd,
       0 0 80px #9d4edd;
-    animation: neon-flicker 2s infinite alternate;
+    animation: neon-flicker 3s infinite alternate;
+  }
+
+  body.cyberpunk-bg .neon-text-blue {
+    text-shadow: 
+      0 0 5px #4361ee,
+      0 0 10px #4361ee,
+      0 0 20px #4361ee,
+      0 0 40px #4361ee;
+    animation: neon-flicker 3s infinite alternate;
+  }
+
+  body.cyberpunk-bg .neon-text-pink {
+    text-shadow: 
+      0 0 5px #f72585,
+      0 0 10px #f72585,
+      0 0 20px #f72585,
+      0 0 40px #f72585;
+    animation: neon-flicker 3s infinite alternate;
+  }
+
+  body.cyberpunk-bg .neon-text-cyan {
+    text-shadow: 
+      0 0 5px #4cc9f0,
+      0 0 10px #4cc9f0,
+      0 0 20px #4cc9f0,
+      0 0 40px #4cc9f0;
+    animation: neon-flicker 3s infinite alternate;
   }
   
   /* 赛博朋克玻璃拟态效果 */
@@ -174,6 +235,26 @@
       inset 0 0 20px rgba(157, 78, 221, 0.1);
     position: relative;
     overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  body.cyberpunk-bg .glass-morphism::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      45deg,
+      transparent 0%,
+      rgba(157, 78, 221, 0.1) 25%,
+      transparent 50%,
+      rgba(67, 97, 238, 0.1) 75%,
+      transparent 100%
+    );
+    animation: glass-shine 8s linear infinite;
+    z-index: -1;
   }
   
   /* 赛博朋克自定义颜色类 */
@@ -181,6 +262,9 @@
   body.cyberpunk-bg .text-neon-blue { color: #4361ee; text-shadow: 0 0 5px #4361ee; }
   body.cyberpunk-bg .text-neon-pink { color: #f72585; text-shadow: 0 0 5px #f72585; }
   body.cyberpunk-bg .text-neon-cyan { color: #4cc9f0; text-shadow: 0 0 5px #4cc9f0; }
+  body.cyberpunk-bg .text-neon-green { color: #4895ef; text-shadow: 0 0 5px #4895ef; }
+  body.cyberpunk-bg .text-neon-yellow { color: #f8f32b; text-shadow: 0 0 5px #f8f32b; }
+  body.cyberpunk-bg .text-neon-red { color: #ff003c; text-shadow: 0 0 5px #ff003c; }
   
   /* 赛博朋克动画 */
   @keyframes neon-flicker {
@@ -193,12 +277,119 @@
         0 0 80px #9d4edd;
     }
     20%, 24%, 55% {
-      text-shadow: none;
+      text-shadow: 
+        0 0 2px #9d4edd,
+        0 0 5px #9d4edd;
     }
   }
   
   @keyframes scanline {
     0% { transform: translateY(-100%); }
     100% { transform: translateY(100vh); }
+  }
+  
+  @keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes glass-shine {
+    0% { transform: translateX(-50%) translateY(-50%) rotate(0deg); }
+    100% { transform: translateX(50%) translateY(50%) rotate(360deg); }
+  }
+
+  /* 响应式设计增强 */
+  @media (max-width: 768px) {
+    body.cyberpunk-bg h1 { font-size: 2rem; }
+    body.cyberpunk-bg h2 { font-size: 1.75rem; }
+    body.cyberpunk-bg h3 { font-size: 1.5rem; }
+    
+    body.cyberpunk-bg .glass-morphism {
+      backdrop-filter: blur(10px);
+    }
+  }
+
+  @media (max-width: 480px) {
+    body.cyberpunk-bg h1 { font-size: 1.75rem; }
+    body.cyberpunk-bg h2 { font-size: 1.5rem; }
+    body.cyberpunk-bg h3 { font-size: 1.25rem; }
+    
+    body.cyberpunk-bg .glass-morphism {
+      backdrop-filter: blur(8px);
+    }
+  }
+
+  /* 增强版标签样式 */
+  body.cyberpunk-bg .tag-cyber {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: 9999px;
+    background: rgba(76, 201, 240, 0.1);
+    border: 1px solid rgba(76, 201, 240, 0.3);
+    color: #4cc9f0;
+    box-shadow: 
+      0 0 8px rgba(76, 201, 240, 0.2),
+      inset 0 0 8px rgba(76, 201, 240, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  body.cyberpunk-bg .tag-cyber::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(76, 201, 240, 0.2),
+      transparent
+    );
+    transition: left 0.5s;
+  }
+
+  body.cyberpunk-bg .tag-cyber:hover {
+    background: rgba(76, 201, 240, 0.2);
+    box-shadow: 
+      0 0 15px rgba(76, 201, 240, 0.4),
+      inset 0 0 15px rgba(76, 201, 240, 0.15);
+    transform: translateY(-2px);
+  }
+
+  body.cyberpunk-bg .tag-cyber:hover::before {
+    left: 100%;
+  }
+
+  /* 增强版时间样式 */
+  body.cyberpunk-bg .time-cyber {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #f72585;
+    border-bottom: 1px solid rgba(247, 37, 133, 0.3);
+    padding-bottom: 0.25rem;
+    display: inline-block;
+    position: relative;
+  }
+
+  body.cyberpunk-bg .time-cyber::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #f72585, transparent);
   }
 }

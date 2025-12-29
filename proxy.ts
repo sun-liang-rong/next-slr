@@ -12,6 +12,7 @@ const publicPaths = [
   '/api/articles', // 文章列表接口
   '/api/articles/count', // 文章计数接口
   '/api/tags', // 标签列表接口
+  '/api/articles/:id', // 文章详情接口
 ];
 
 export async function proxy(request: NextRequest) {

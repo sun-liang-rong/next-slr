@@ -7,7 +7,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <div className="min-h-screen font-sans">
+    <div className="min-h-screen font-sans bg-dark-bg text-white">
       {/* 固定的导航栏 */}
       <NavHeader />
       

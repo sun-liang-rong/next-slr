@@ -26,3 +26,22 @@ async function seedUser() {
 }
 
 seedUser();
+// 添加标签
+async function seedTag(params) {
+  try {
+    // 插入标签数据
+    const tag = await prisma.tag.create({
+      data: {
+        name: 'Next.js',
+      },
+    });
+
+    console.log('标签数据插入成功:', tag);
+  } catch (error) {
+    console.error('插入标签数据失败:', error);
+  } finally {
+    // 关闭Prisma连接
+    await prisma.$disconnect();
+  }
+}
+// seedTag()

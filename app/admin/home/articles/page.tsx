@@ -1,321 +1,303 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState, useCallback } from "react"
+import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { 
-  Search,
-  Plus,
-  Eye,
-  Edit,
-  Trash2
-} from "lucide-react"
+import { Plus, Search, Pencil, Trash2, Loader2, ChevronLeft, ChevronRight } from "lucide-react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { LoadingSpinner, LoadingDots } from "@/components/ui/loading"
-import { toast } from "sonner"
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Badge } from "@/components/ui/badge"
+import { Article } from "@/types/article"
 
-import { Article } from '@/types/article';
+interface PaginationData {
+  page: number
+  limit: number
+  total: number
+  pages: number
+}
+
+interface ArticlesResponse {
+  data: Article[]
+  pagination: PaginationData
+}
 
 export default function ArticlesPage() {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
   const [articles, setArticles] = useState<Article[]>([])
+  const [pagination, setPagination] = useState<PaginationData>({
+    page: 1,
+    limit: 10,
+    total: 0,
+    pages: 1,
+  })
   const [loading, setLoading] = useState(true)
-  const [searchLoading, setSearchLoading] = useState(false)
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [articleToDelete, setArticleToDelete] = useState<string | null>(null)
+  
+  // Local state for filters to avoid url updates on every keystroke
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "")
+  const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "all")
 
-  const getArticles = async (): Promise<Article[]> => {
+  const fetchArticles = useCallback(async () => {
     try {
-      const response = await fetch('/api/articles');
-      if (!response.ok) {
-        throw new Error('获取文章列表失败');
-      }
-      const result = await response.json();
-      return result.data;
-    } catch (error) {
-      console.error("获取文章数据失败:", error);
-      toast.error("获取文章数据失败");
-      return [];
-    }
-  };
+      setLoading(true)
+      const params = new URLSearchParams()
+      const page = searchParams.get("page") || "1"
+      const search = searchParams.get("search") || ""
+      const status = searchParams.get("status") || ""
 
-  const deleteArticle = async (id: string): Promise<boolean> => {
-    try {
-      const response = await fetch(`/api/articles/${id}`, {
-        method: 'DELETE',
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || '删除文章失败');
-      }
-      
-      return true;
-    } catch (error) {
-      console.error("删除文章时出错:", error);
-      return false;
-    }
-  };
+      params.set("page", page)
+      params.set("limit", "10")
+      if (search) params.set("search", search)
+      if (status && status !== "all") params.set("status", status)
 
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const handleSearch = async (term: string) => {
-    setSearchTerm(term);
-    setSearchLoading(true);
-    try {
-      let url = '/api/articles';
-      const params = new URLSearchParams();
-      if (term) {
-        params.set('search', term);
-      }
-      if (params.toString()) {
-        url += `?${params.toString()}`;
-      }
+      const response = await fetch(`/api/articles?${params.toString()}`)
+      if (!response.ok) throw new Error("获取文章列表失败")
       
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error('搜索文章失败');
-      }
-      const result = await response.json();
-      
-      setArticles(result.data);
+      const data: ArticlesResponse = await response.json()
+      setArticles(data.data)
+      setPagination(data.pagination)
     } catch (error) {
-      console.error("搜索文章失败:", error);
-      toast.error("搜索文章失败");
+      console.error(error)
+      toast.error("获取文章列表失败")
     } finally {
-      setSearchLoading(false);
+      setLoading(false)
     }
-  };
-
-  const handleDeleteArticle = async () => {
-    if (!articleToDelete) return
-    
-    try {
-      const success = await deleteArticle(articleToDelete)
-      if (success) {
-        setArticles(articles.filter(article => article.id !== articleToDelete))
-        toast.success("文章删除成功")
-      } else {
-        toast.error("删除文章失败")
-      }
-    } catch (error) {
-      console.error("删除文章时出错:", error)
-      toast.error("删除文章失败")
-    } finally {
-      setDeleteDialogOpen(false)
-      setArticleToDelete(null)
-    }
-  }
-
-  const openDeleteDialog = (id: string) => {
-    setArticleToDelete(id)
-    setDeleteDialogOpen(true)
-  }
+  }, [searchParams])
 
   useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        const data = await getArticles()
-        setArticles(data);
-      } catch (error) {
-        console.error("获取文章数据失败:", error)
-      } finally {
-        setLoading(false)
-      }
+    fetchArticles()
+  }, [fetchArticles])
+
+  const updateFilters = () => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set("page", "1") // Reset to page 1 on filter change
+    if (searchQuery) {
+      params.set("search", searchQuery)
+    } else {
+      params.delete("search")
+    }
+    
+    if (statusFilter && statusFilter !== "all") {
+      params.set("status", statusFilter)
+    } else {
+      params.delete("status")
+    }
+    
+    router.push(`${pathname}?${params.toString()}`)
+  }
+
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set("page", newPage.toString())
+    router.push(`${pathname}?${params.toString()}`)
+  }
+
+  const handleDelete = async (article: Article) => {
+    if (!confirm(`确定要删除文章 "${article.title}" 吗？此操作无法撤销。`)) {
+      return
     }
 
-    fetchArticles()
-  }, [])
+    try {
+      const response = await fetch(`/api/articles/${article.id}`, {
+        method: "DELETE",
+      })
+
+      if (!response.ok) {
+        throw new Error("删除失败")
+      }
+
+      toast.success("文章删除成功")
+      fetchArticles()
+    } catch (error) {
+      console.error(error)
+      toast.error("删除失败")
+    }
+  }
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "published":
+        return <Badge className="bg-green-500">已发布</Badge>
+      case "draft":
+        return <Badge variant="secondary">草稿</Badge>
+      case "archived":
+        return <Badge variant="outline">已归档</Badge>
+      default:
+        return <Badge>{status}</Badge>
+    }
+  }
 
   return (
-    <div className="flex flex-1 flex-col">
-      {/* 主内容区域 */}
-      <div className="flex flex-1 flex-col">
-        {/* 顶部导航栏 */}
-        <header className="flex h-16 items-center gap-4 border-b bg-background px-6">
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-semibold">文章管理</h1>
-          </div>
-        </header>
-
-        {/* 内容区域 */}
-        <main className="flex-1 overflow-auto p-6">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold tracking-tight">文章管理</h2>
-            <p className="text-muted-foreground">管理您的所有文章</p>
-          </div>
-
-          {/* 操作栏 */}
-          <div className="flex flex-col md:flex-row md:items-center gap-4 mb-6">
-            <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="搜索文章..."
-                className="pl-8"
-                onChange={(e) => handleSearch(e.target.value)}
-              />
-              {searchLoading && (
-                <div className="absolute right-2.5 top-2.5">
-                  <LoadingDots />
-                </div>
-              )}
-            </div>
-            <Link href="/admin/home/articles/new">
-              <Button>
-                <Plus className="mr-2 size-4" />
-                新建文章
-              </Button>
-            </Link>
-          </div>
-
-          {/* 文章列表 */}
-          <Card>
-            <CardHeader>
-              <CardTitle>文章列表</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {(loading || searchLoading) ? (
-                <div className="flex justify-center items-center h-64">
-                  <LoadingSpinner />
-                </div>
-              ) : articles.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-64 text-center">
-                  <div className="text-4xl text-muted-foreground mb-4">📄</div>
-                  <h3 className="text-lg font-medium mb-1">暂无文章</h3>
-                  <p className="text-sm text-muted-foreground mb-6">还没有任何文章，点击下方按钮创建第一篇文章</p>
-                  <Link href="/admin/home/articles/new">
-                    <Button variant="default" size="sm">
-                      新建文章
-                    </Button>
-                  </Link>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="h-10 px-4 text-left">标题</th>
-                        <th className="h-10 px-4 text-left">日期</th>
-                        <th className="h-10 px-4 text-left">状态</th>
-                        <th className="h-10 px-4 text-left">标签</th>
-                        <th className="h-10 px-4 text-right">操作</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y">
-                      {articles.map((article) => (
-                        <tr key={article.id} className="h-16">
-                          <td className="px-4">
-                            <Link href={`/admin/home/articles/${article.id}`} className="font-medium hover:underline">
-                              {article.title}
-                            </Link>
-                          </td>
-                          <td className="px-4">
-                            {article.created_at ? new Date(article.created_at).toLocaleDateString() : 
-                             new Date().toLocaleDateString()}
-                          </td>
-                          <td className="px-4">
-                            <span className={`px-2 py-1 rounded-full text-xs ${
-                              article.status === "published" || article.status === "已发布"
-                                ? "bg-green-100 text-green-800" 
-                                : article.status === "draft" || article.status === "草稿"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-blue-100 text-blue-800"
-                            }`}>
-                              {article.status === "published" ? "已发布" : 
-                               article.status === "draft" ? "草稿" : article.status}
-                            </span>
-                          </td>
-                          <td className="px-4">
-                            <div className="flex flex-wrap gap-2">
-                              {article.tags?.map((tag) => (
-                                <span key={tag.id} className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                                  {tag.name}
-                                </span>
-                              )) || <span className="text-muted-foreground text-xs">无标签</span>}
-                            </div>
-                          </td>
-                          <td className="px-4 text-right">
-                            <div className="flex justify-end gap-2">
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Link href={`/admin/home/articles/${article.id}/view`}>
-                                    <Button variant="outline" size="icon">
-                                      <Eye className="size-4" />
-                                    </Button>
-                                  </Link>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>查看文章</p>
-                                </TooltipContent>
-                              </Tooltip>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Link href={`/admin/home/articles/${article.id}`}>
-                                    <Button variant="outline" size="icon">
-                                      <Edit className="size-4" />
-                                    </Button>
-                                  </Link>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>编辑文章</p>
-                                </TooltipContent>
-                              </Tooltip>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button 
-                                    variant="destructive" 
-                                    size="icon"
-                                    onClick={() => openDeleteDialog(article.id)}
-                                  >
-                                    <Trash2 className="size-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>删除文章</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>确认删除</DialogTitle>
-                <DialogDescription>
-                  确定要删除这篇文章吗？此操作无法撤销。
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
-                  取消
-                </Button>
-                <Button variant="destructive" onClick={handleDeleteArticle}>
-                  删除
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </main>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold tracking-tight">文章管理</h1>
+        <Link href="/admin/home/articles/create">
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            新建文章
+          </Button>
+        </Link>
       </div>
+
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="搜索文章标题..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-8"
+            onKeyDown={(e) => e.key === "Enter" && updateFilters()}
+          />
+        </div>
+        <Select 
+          value={statusFilter} 
+          onValueChange={(value) => setStatusFilter(value)}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="状态筛选" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">所有状态</SelectItem>
+            <SelectItem value="published">已发布</SelectItem>
+            <SelectItem value="draft">草稿</SelectItem>
+            <SelectItem value="archived">已归档</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button variant="secondary" onClick={updateFilters}>
+          筛选
+        </Button>
+      </div>
+
+      <div className="border rounded-md">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[40%]">标题</TableHead>
+              <TableHead>状态</TableHead>
+              <TableHead>标签</TableHead>
+              <TableHead>创建时间</TableHead>
+              <TableHead className="text-right">操作</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={5} className="h-24 text-center">
+                  <div className="flex justify-center items-center">
+                    <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                    加载中...
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : articles.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="h-24 text-center">
+                  暂无文章数据
+                </TableCell>
+              </TableRow>
+            ) : (
+              articles.map((article) => (
+                <TableRow key={article.id}>
+                  <TableCell className="font-medium">
+                    <div className="truncate max-w-[300px]" title={article.title}>
+                      {article.title}
+                    </div>
+                  </TableCell>
+                  <TableCell>{getStatusBadge(article.status)}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {article.tags?.slice(0, 3).map((tag) => (
+                        <Badge key={tag.id} variant="outline" className="text-xs">
+                          {tag.name}
+                        </Badge>
+                      ))}
+                      {article.tags && article.tags.length > 3 && (
+                        <Badge variant="outline" className="text-xs">+{article.tags.length - 3}</Badge>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {new Date(article.created_at).toLocaleDateString("zh-CN", {
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                    })}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Link href={`/admin/home/articles/${article.id}`}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title="编辑"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => handleDelete(article)}
+                        title="删除"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Pagination */}
+      {!loading && pagination.pages > 1 && (
+        <div className="flex items-center justify-end space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(pagination.page - 1)}
+            disabled={pagination.page <= 1}
+          >
+            <ChevronLeft className="h-4 w-4" />
+            上一页
+          </Button>
+          <div className="text-sm text-muted-foreground">
+            第 {pagination.page} 页 / 共 {pagination.pages} 页
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(pagination.page + 1)}
+            disabled={pagination.page >= pagination.pages}
+          >
+            下一页
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
     </div>
   )
 }
