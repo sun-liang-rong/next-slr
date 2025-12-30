@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { Plus, Search, Pencil, Trash2, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
+import AdminLayout from "@/components/admin-layout"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -95,16 +96,8 @@ export default function TagsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">标签管理</h1>
-        <Button onClick={handleCreate}>
-          <Plus className="mr-2 h-4 w-4" />
-          新建标签
-        </Button>
-      </div>
-
-      <div className="flex items-center space-x-2">
+    <AdminLayout title="标签管理" description="管理文章标签">
+      <div className="flex items-center justify-between mb-4">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
@@ -114,6 +107,10 @@ export default function TagsPage() {
             className="pl-8"
           />
         </div>
+        <Button onClick={handleCreate} className="ml-4">
+          <Plus className="mr-2 h-4 w-4" />
+          新建标签
+        </Button>
       </div>
 
       <div className="border rounded-md">
@@ -190,6 +187,6 @@ export default function TagsPage() {
         tag={editingTag}
         onSuccess={fetchTags}
       />
-    </div>
+    </AdminLayout>
   )
 }

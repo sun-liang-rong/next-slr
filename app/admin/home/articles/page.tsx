@@ -6,6 +6,7 @@ import Link from "next/link"
 import { Plus, Search, Pencil, Trash2, Loader2, ChevronLeft, ChevronRight } from "lucide-react"
 import { toast } from "sonner"
 
+import AdminLayout from "@/components/admin-layout"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -176,18 +177,8 @@ export default function ArticlesPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold tracking-tight">文章管理</h1>
-        <Link href="/admin/home/articles/create">
-          <Button>
-            <Plus className="mr-2 w-4 h-4" />
-            新建文章
-          </Button>
-        </Link>
-      </div>
-
-      <div className="flex flex-col gap-4 sm:flex-row">
+    <AdminLayout title="文章管理" description="管理您的文章内容">
+      <div className="flex justify-between items-center mb-4">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
@@ -198,23 +189,31 @@ export default function ArticlesPage() {
             onKeyDown={(e) => e.key === "Enter" && updateFilters()}
           />
         </div>
-        <Select 
-          value={statusFilter} 
-          onValueChange={(value) => setStatusFilter(value)}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="状态筛选" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">所有状态</SelectItem>
-            <SelectItem value="published">已发布</SelectItem>
-            <SelectItem value="draft">草稿</SelectItem>
-            <SelectItem value="archived">已归档</SelectItem>
-          </SelectContent>
-        </Select>
-        <Button variant="secondary" onClick={updateFilters}>
-          筛选
-        </Button>
+        <div className="flex gap-2 ml-4">
+          <Select 
+            value={statusFilter} 
+            onValueChange={(value) => setStatusFilter(value)}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="状态筛选" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">所有状态</SelectItem>
+              <SelectItem value="published">已发布</SelectItem>
+              <SelectItem value="draft">草稿</SelectItem>
+              <SelectItem value="archived">已归档</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button variant="secondary" onClick={updateFilters}>
+            筛选
+          </Button>
+          <Link href="/admin/home/articles/create">
+            <Button>
+              <Plus className="mr-2 w-4 h-4" />
+              新建文章
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="rounded-md border">
@@ -303,7 +302,7 @@ export default function ArticlesPage() {
 
       {/* Pagination */}
       {!loading && pagination.pages > 1 && (
-        <div className="flex justify-end items-center space-x-2">
+        <div className="flex justify-end items-center pt-4 space-x-2">
           <Button
             variant="outline"
             size="sm"
@@ -327,6 +326,6 @@ export default function ArticlesPage() {
           </Button>
         </div>
       )}
-    </div>
+    </AdminLayout>
   )
 }

@@ -3,6 +3,7 @@
 import { useEffect, useState, use } from "react"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
+import AdminLayout from "@/components/admin-layout"
 import { ArticleForm } from "../components/article-form"
 import { Article } from "@/types/article"
 
@@ -51,16 +52,8 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
   }
 
   return (
-    <div className="space-y-6 w-full max-w-none">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">编辑文章</h1>
-        <p className="text-muted-foreground">
-          编辑文章内容和属性
-        </p>
-      </div>
-      <div className="p-6 w-full rounded-md border bg-card">
-        <ArticleForm article={article} isEditing={true} />
-      </div>
-    </div>
+    <AdminLayout title="编辑文章" description="编辑文章内容和属性">
+      <ArticleForm article={article} isEditing={true} />
+    </AdminLayout>
   )
 }
