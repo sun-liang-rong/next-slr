@@ -1,3 +1,5 @@
+"use client"
+import React from 'react';
 import { Tag } from '@/types/article';
 
 interface TagCloudProps {
@@ -14,7 +16,7 @@ const TagCloud: React.FC<TagCloudProps> = ({ tags, onTagClick, selectedTag }) =>
 
   return (
     <div className="mb-12">
-      <div className="flex flex-wrap justify-center gap-4">
+      <div className="flex flex-wrap gap-4 justify-center">
         {Array.isArray(tags) && tags.map((tag) => {
           const weight = getTagWeight(tag.name);
           const fontSize = weight === 1 ? 'text-sm' : weight === 2 ? 'text-base' : 'text-lg';
@@ -26,7 +28,7 @@ const TagCloud: React.FC<TagCloudProps> = ({ tags, onTagClick, selectedTag }) =>
               onClick={() => onTagClick(tag.id)}
               className={`px-6 py-3 rounded-full font-medium transition-all duration-300 ${
                 isSelected
-                  ? 'bg-neon-purple text-white neon-border btn-hover'
+                  ? 'text-white bg-neon-purple neon-border btn-hover'
                   : 'glass-morphism text-gray hover:text-neon-blue'
               } ${fontSize}`}
             >
