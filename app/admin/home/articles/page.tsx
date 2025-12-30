@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
-import { useRouter, usePathname, useSearchParams } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { Plus, Search, Pencil, Trash2, Loader2, ChevronLeft, ChevronRight } from "lucide-react"
 import { toast } from "sonner"
@@ -41,7 +41,6 @@ interface ArticlesResponse {
 export default function ArticlesPage() {
   const router = useRouter()
   const pathname = usePathname()
-  const searchParams = useSearchParams()
 
   const [articles, setArticles] = useState<Article[]>([])
   const [pagination, setPagination] = useState<PaginationData>({
@@ -53,21 +52,45 @@ export default function ArticlesPage() {
   const [loading, setLoading] = useState(true)
   
   // Local state for filters to avoid url updates on every keystroke
-  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "")
-  const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "all")
+  const [searchQuery, setSearchQuery] = useState("")
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [currentPage, setCurrentPage] = useState(1)
+
+  // Initialize state from URL on component mount and when URL changes
+  useEffect(() => {
+    const updateStateFromUrl = () => {
+      const url = new URL(window.location.href)
+      const page = url.searchParams.get("page") || "1"
+      const search = url.searchParams.get("search") || ""
+      const status = url.searchParams.get("status") || "all"
+      
+      setCurrentPage(parseInt(page, 10))
+      setSearchQuery(search)
+      setStatusFilter(status)
+    }
+    
+    // Initial update
+    updateStateFromUrl()
+    
+    // Listen for URL changes (back/forward navigation)
+    window.addEventListener('popstate', updateStateFromUrl)
+    window.addEventListener('hashchange', updateStateFromUrl)
+    
+    return () => {
+      window.removeEventListener('popstate', updateStateFromUrl)
+      window.removeEventListener('hashchange', updateStateFromUrl)
+    }
+  }, [])
 
   const fetchArticles = useCallback(async () => {
     try {
       setLoading(true)
       const params = new URLSearchParams()
-      const page = searchParams.get("page") || "1"
-      const search = searchParams.get("search") || ""
-      const status = searchParams.get("status") || ""
-
-      params.set("page", page)
+      
+      params.set("page", currentPage.toString())
       params.set("limit", "10")
-      if (search) params.set("search", search)
-      if (status && status !== "all") params.set("status", status)
+      if (searchQuery) params.set("search", searchQuery)
+      if (statusFilter && statusFilter !== "all") params.set("status", statusFilter)
 
       const response = await fetch(`/api/articles?${params.toString()}`)
       if (!response.ok) throw new Error("获取文章列表失败")
@@ -81,34 +104,40 @@ export default function ArticlesPage() {
     } finally {
       setLoading(false)
     }
-  }, [searchParams])
+  }, [currentPage, searchQuery, statusFilter])
 
   useEffect(() => {
     fetchArticles()
   }, [fetchArticles])
 
   const updateFilters = () => {
-    const params = new URLSearchParams(searchParams.toString())
+    const params = new URLSearchParams()
     params.set("page", "1") // Reset to page 1 on filter change
     if (searchQuery) {
       params.set("search", searchQuery)
-    } else {
-      params.delete("search")
     }
     
     if (statusFilter && statusFilter !== "all") {
       params.set("status", statusFilter)
-    } else {
-      params.delete("status")
     }
     
     router.push(`${pathname}?${params.toString()}`)
+    setCurrentPage(1) // Update local state immediately for UI feedback
   }
 
   const handlePageChange = (newPage: number) => {
-    const params = new URLSearchParams(searchParams.toString())
+    const params = new URLSearchParams()
     params.set("page", newPage.toString())
+    if (searchQuery) {
+      params.set("search", searchQuery)
+    }
+    
+    if (statusFilter && statusFilter !== "all") {
+      params.set("status", statusFilter)
+    }
+    
     router.push(`${pathname}?${params.toString()}`)
+    setCurrentPage(newPage) // Update local state immediately for UI feedback
   }
 
   const handleDelete = async (article: Article) => {
@@ -148,17 +177,17 @@ export default function ArticlesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold tracking-tight">文章管理</h1>
         <Link href="/admin/home/articles/create">
           <Button>
-            <Plus className="mr-2 h-4 w-4" />
+            <Plus className="mr-2 w-4 h-4" />
             新建文章
           </Button>
         </Link>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
@@ -188,7 +217,7 @@ export default function ArticlesPage() {
         </Button>
       </div>
 
-      <div className="border rounded-md">
+      <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -204,7 +233,7 @@ export default function ArticlesPage() {
               <TableRow>
                 <TableCell colSpan={5} className="h-24 text-center">
                   <div className="flex justify-center items-center">
-                    <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                    <Loader2 className="mr-2 w-6 h-6 animate-spin" />
                     加载中...
                   </div>
                 </TableCell>
@@ -244,14 +273,14 @@ export default function ArticlesPage() {
                     })}
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
+                    <div className="flex gap-2 justify-end">
                       <Link href={`/admin/home/articles/${article.id}`}>
                         <Button
                           variant="ghost"
                           size="icon"
                           title="编辑"
                         >
-                          <Pencil className="h-4 w-4" />
+                          <Pencil className="w-4 h-4" />
                         </Button>
                       </Link>
                       <Button
@@ -261,7 +290,7 @@ export default function ArticlesPage() {
                         onClick={() => handleDelete(article)}
                         title="删除"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
                   </TableCell>
@@ -274,14 +303,14 @@ export default function ArticlesPage() {
 
       {/* Pagination */}
       {!loading && pagination.pages > 1 && (
-        <div className="flex items-center justify-end space-x-2">
+        <div className="flex justify-end items-center space-x-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => handlePageChange(pagination.page - 1)}
             disabled={pagination.page <= 1}
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="w-4 h-4" />
             上一页
           </Button>
           <div className="text-sm text-muted-foreground">
@@ -294,7 +323,7 @@ export default function ArticlesPage() {
             disabled={pagination.page >= pagination.pages}
           >
             下一页
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="w-4 h-4" />
           </Button>
         </div>
       )}
