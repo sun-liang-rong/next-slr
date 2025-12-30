@@ -12,17 +12,27 @@ const publicPaths = [
   '/api/articles', // 文章列表接口
   '/api/articles/count', // 文章计数接口
   '/api/tags', // 标签列表接口
-  '/api/articles/:id', // 文章详情接口
+  '/api/articles/'
 ];
+const blackApi = [
+  '/api/articles/', // 文章详情接口
+]
 
 export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
-
+  let flag = false
   // 检查是否为公开路径
   if (publicPaths.includes(path)) {
     return NextResponse.next();
   }
-
+  blackApi.forEach((item) => {
+    if (path.includes(item)) {
+      flag = true
+    }
+  })
+  if (flag) {
+    return NextResponse.next();
+  }
   // 检查是否为API路径
   if (path.startsWith('/api/')) {
     // 获取cookie中的token
