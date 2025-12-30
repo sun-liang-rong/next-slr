@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@bytemd/plugin-gfm": "^1.22.0",
+    "@bytemd/plugin-highlight": "^1.22.0",
     "@bytemd/react": "^1.22.0",
     "@hookform/resolvers": "^5.2.2",
     "@prisma/client": "^5.22.0",
@@ -24,8 +25,6 @@
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-tooltip": "^1.2.8",
-    "@types/bcryptjs": "^3.0.0",
-    "@types/highlight.js": "^10.1.0",
     "@types/jsonwebtoken": "^9.0.10",
     "bcryptjs": "^3.0.3",
     "bytemd": "^1.22.0",
